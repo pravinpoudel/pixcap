@@ -1,23 +1,35 @@
 <!DOCTYPE html>
 <html>
-	<head> 
-		<title>Test Task (3D Graphics Dev)</title>
-		<style>
-            html,
-            body {
-                overflow: hidden;
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-            }
-            #canvas {
-                width: 100%;
-                height: 100%;
-            }
-        </style>
+  <head>
+    <title>Test Task (3D Graphics Dev)</title>
+    <style>
+      html,
+      body {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #canvas {
+        width: 100%;
+        height: 100%;
+      }
+      .menu-UI {
+        display: none;
+        position: absolute;
+        padding: 20px;
+        background-color: aliceblue;
+      }
+      #attributes_div {
+      }
+    </style>
   </head>
   <body>
+    <div class="menu-UI">
+      <h3>Change the Value to change the shape</h3>
+      <div id="attributes_div"></div>
+    </div>
     <canvas id="canvas"></canvas>
   </body>
   <script src="main.js"></script>
