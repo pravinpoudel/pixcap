@@ -104,16 +104,19 @@ function showPlaneUI(
       console.log(selectedMesh.scaling);
       if (changedAttr == "x") {
         selectedMesh.scaling.x = value;
-        selectedMesh.computeWorldMatrix();
+        selectedMesh.computeWorldMatrix(true);
+        selectedMesh.refreshBoundingInfo();
       }
       if (changedAttr == "y") {
         selectedMesh.scaling.y = value;
-        selectedMesh.computeWorldMatrix();
+        selectedMesh.computeWorldMatrix(true);
+        selectedMesh.refreshBoundingInfo();
       }
 
       if (changedAttr == "z") {
         selectedMesh.scaling.z = value;
-        selectedMesh.computeWorldMatrix();
+        selectedMesh.computeWorldMatrix(true);
+        selectedMesh.refreshBoundingInfo();
       }
     });
   }
@@ -133,10 +136,11 @@ function showUI(selectedMesh: Mesh) {
   switch (name) {
     case "plane":
       var boundingBox = selectedMesh.getBoundingInfo().boundingBox;
+      console.log(boundingBox);
       let dimension = {
-        x: boundingBox.maximum.x - boundingBox.minimum.x,
-        y: boundingBox.maximum.y - boundingBox.minimum.y,
-        z: boundingBox.maximum.z - boundingBox.minimum.y,
+        x: boundingBox.maximumWorld.x - boundingBox.minimumWorld.x,
+        y: boundingBox.maximumWorld.y - boundingBox.minimumWorld.y,
+        z: boundingBox.maximumWorld.z - boundingBox.minimumWorld.y,
       };
       console.log(dimension);
       showPlaneUI(selectedMesh, dimension);
@@ -154,8 +158,6 @@ function showUI(selectedMesh: Mesh) {
     default:
       console.log("name is not detected");
   }
-
-  selectedMesh.computeWorldMatrix();
 }
 
 function selectMesh() {
@@ -172,6 +174,7 @@ function selectMesh() {
     if (selectedMesh != intersection.pickedMesh) {
       console.log("selected for first time");
       selectedMesh = intersection.pickedMesh;
+      console.log(selectedMesh);
       highLightLayer.removeAllMeshes();
       highLightLayer.addMesh(selectedMesh as Mesh, BABYLON.Color3.Red());
       showUI(selectedMesh as Mesh);
