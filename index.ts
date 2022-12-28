@@ -7,10 +7,17 @@ import {
   MeshBuilder,
   HighlightLayer,
   Quaternion,
+  OimoJSPlugin,
+  PhysicsImpostor,
+  StandardMaterial,
+  Color3,
   Camera,
   AbstractMesh,
   Mesh,
 } from "babylonjs";
+
+import cannon from "cannon";
+window.CANNON = cannon;
 
 import "babylonjs-loaders";
 
@@ -21,6 +28,7 @@ canvas.addEventListener("pointermove", onPointerMove, false);
 canvas.addEventListener("dblclick", selectMesh, false);
 const engine = new Engine(canvas, true, {});
 const scene = new Scene(engine);
+scene.enablePhysics();
 interface Position2D {
   x: number;
   y: number;
@@ -30,6 +38,7 @@ let highLightLayer: HighlightLayer;
 let camera: ArcRotateCamera;
 let selectedMesh: AbstractMesh | null;
 let sceneObjects: Array<Mesh> = [];
+let icosphere: Mesh;
 
 function prepareScene() {
   // Camera
@@ -51,13 +60,39 @@ function prepareScene() {
   plane.rotationQuaternion = Quaternion.FromEulerAngles(0, Math.PI, 0);
   sceneObjects.push(plane);
 
-  const icosphere = MeshBuilder.CreateIcoSphere("IcoSphere", {}, scene);
-  icosphere.position.set(-2, 0, 0);
+  icosphere = MeshBuilder.CreateIcoSphere("IcoSphere", {}, scene);
+  icosphere.position.set(-2, 15, 0);
   sceneObjects.push(icosphere);
+  icosphere.physicsImpostor = new PhysicsImpostor(
+    icosphere,
+    BABYLON.PhysicsImpostor.SphereImpostor,
+    { mass: 2, restitution: 0.9 },
+    scene
+  );
 
   const cylinder = MeshBuilder.CreateCylinder("Cylinder", {}, scene);
   cylinder.position.set(2, 0, 0);
   sceneObjects.push(cylinder);
+  addGround();
+}
+
+function addGround() {
+  const ground = MeshBuilder.CreateGround(
+    "ground",
+    { width: 2000, height: 200, subdivisions: 1000 },
+    scene
+  );
+  // var ground = new Mesh("ground", scene);
+  const myMaterial = new StandardMaterial("myMaterial", scene);
+  myMaterial.diffuseColor = new Color3(1, 0, 1);
+  ground.material = myMaterial;
+  ground.position.y = -5;
+  ground.physicsImpostor = new PhysicsImpostor(
+    ground,
+    BABYLON.PhysicsImpostor.BoxImpostor,
+    { mass: 0, restitution: 0.9 },
+    scene
+  );
 }
 
 function init() {
@@ -122,6 +157,15 @@ function showPlaneUI(
   }
 }
 
+function createSphere(subdivisionRatio: number) {
+  icosphere = MeshBuilder.CreateIcoSphere(
+    "icosphere",
+    { radius: 0.5, flat: true, subdivisions: subdivisionRatio * 32 },
+    scene
+  );
+  icosphere.position.set(-2, 0, 0);
+}
+
 function showSphereUI(radius: number) {
   console.log(radius);
 }
@@ -142,7 +186,6 @@ function showUI(selectedMesh: Mesh) {
         y: boundingBox.maximumWorld.y - boundingBox.minimumWorld.y,
         z: boundingBox.maximumWorld.z - boundingBox.minimumWorld.y,
       };
-      console.log(dimension);
       showPlaneUI(selectedMesh, dimension);
       break;
     case "icosphere":
